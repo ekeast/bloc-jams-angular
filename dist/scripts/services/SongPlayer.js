@@ -24,6 +24,14 @@
         SongPlayer.volume = 80;
         
         /**
+        * @desc holds the previous volume so that when you unmute, it knows where to =go back to
+        * @type {Number}
+        */
+        var previousVolume = null;
+        
+        SongPlayer.isMuted = null;
+        
+        /**
         * @desc Buzz object audio file
         * @type {Object}
         */
@@ -50,7 +58,11 @@
                      SongPlayer.currentTime = currentBuzzObject.getTime();
                  });
             });
-
+            
+            currentBuzzObject.bind('ended', function(){
+                SongPlayer.next();
+            });
+            
             SongPlayer.currentSong = song;
             
         };
@@ -89,7 +101,42 @@
             if (currentBuzzObject) {
                 currentBuzzObject.setVolume(volume);
                 SongPlayer.volume = volume;
+                
+                if (SongPlayer.volume == 0) {
+                    SongPlayer.isMuted = true;
+                }
+                else {
+                    SongPlayer.isMuted = false;
+                }
             }
+            else {
+                SongPlayer.volume = volume;
+                
+                if (SongPlayer.volume == 0) {
+                    SongPlayer.isMuted = true;
+                }
+                else {
+                    SongPlayer.isMuted = false;
+                }
+            }
+        };
+        
+        SongPlayer.mute = function() {
+                if (currentBuzzObject) {
+                previousVolume = currentBuzzObject.getVolume();
+                SongPlayer.setVolume(0);
+                SongPlayer.isMuted = true;
+                }
+                else {
+                    previousVolume = 80;
+                    SongPlayer.setVolume(0);
+                    SongPlayer.isMuted = true;
+                }
+        };
+        
+        SongPlayer.unmute = function() {
+            SongPlayer.setVolume(previousVolume);
+            SongPlayer.isMuted = false;
         };
         /**
         * @desc if the current song is not the selected song, it sets a new song; if the SongPlayer.currentSong is the selected song and the song is paused, it plays the song
